@@ -4,12 +4,11 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { UserCreditBalance, UserCreditBalanceParams } from '#/api/user_tier/user_credit_balance';
+import type { UserCreditBalance, UserCreditBalanceParams, GrantCreditsParams } from '#/api/user_tier/user_credit_balance';
 
 import { ref } from 'vue';
 
 import { Page, useVbenModal, VbenButton } from '@vben/common-ui';
-import { MaterialSymbolsAdd } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { message } from 'antdv-next';
@@ -18,11 +17,11 @@ import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   getUserCreditBalanceListApi,
-  createUserCreditBalanceApi,
   updateUserCreditBalanceApi,
   deleteUserCreditBalanceApi,
+  grantCreditsApi,
 } from '#/api/user_tier/user_credit_balance';
-import { querySchema, useColumns, formSchema } from './data';
+import { querySchema, useColumns, grantFormSchema, formSchema } from './data';
 
 defineOptions({
   name: 'UserCreditBalance',
@@ -136,33 +135,41 @@ const [editModal, editModalApi] = useVbenModal({
 });
 
 /**
- * Add Modal
+ * Grant Credits Modal
  */
-const [AddForm, addFormApi] = useVbenForm({
+const [GrantForm, grantFormApi] = useVbenForm({
   showDefaultActions: false,
-  schema: formSchema,
+  schema: grantFormSchema,
 });
 
-const [addModal, addModalApi] = useVbenModal({
+const grantLoading = ref(false);
+
+const [grantModal, grantModalApi] = useVbenModal({
   destroyOnClose: true,
   async onConfirm() {
-    const { valid } = await addFormApi.validate();
+    const { valid } = await grantFormApi.validate();
     if (valid) {
-      addModalApi.lock();
-      const data = await addFormApi.getValues<UserCreditBalanceParams>();
+      grantModalApi.lock();
+      grantLoading.value = true;
+      const data = await grantFormApi.getValues<GrantCreditsParams>();
       try {
-        await createUserCreditBalanceApi(data);
-        message.success($t('ui.actionMessage.operationSuccess'));
-        await addModalApi.close();
+        const res = await grantCreditsApi(data) as any;
+        const result = res?.data || res;
+        const msg = `赠送完成：成功 ${result.success_count} 人，共 ${result.total_credits} 积分${result.failed_count > 0 ? `，失败 ${result.failed_count} 人` : ''}`;
+        message.success(msg);
+        await grantModalApi.close();
         onRefresh();
+      } catch (err: any) {
+        message.error(`赠送失败：${err?.message || '未知错误'}`);
       } finally {
-        addModalApi.unlock();
+        grantModalApi.unlock();
+        grantLoading.value = false;
       }
     }
   },
   onOpenChange(isOpen: boolean) {
     if (isOpen) {
-      addFormApi.resetForm();
+      grantFormApi.resetForm();
     }
   },
 });
@@ -172,17 +179,16 @@ const [addModal, addModalApi] = useVbenModal({
   <Page auto-content-height>
     <Grid>
       <template #toolbar-actions>
-        <VbenButton @click="() => addModalApi.setData(null).open()">
-          <MaterialSymbolsAdd class="size-5" />
-          添加
+        <VbenButton variant="default" @click="() => grantModalApi.open()">
+          🎁 赠送积分
         </VbenButton>
       </template>
     </Grid>
     <editModal :title="'编辑'" :fullscreen-button="false" class="w-[800px]">
       <EditForm />
     </editModal>
-    <addModal :title="'添加'" :fullscreen-button="false" class="w-[800px]">
-      <AddForm />
-    </addModal>
+    <grantModal :title="'赠送积分'" :fullscreen-button="false" class="w-[600px]">
+      <GrantForm />
+    </grantModal>
   </Page>
 </template>

@@ -135,14 +135,22 @@ export function useColumns(
       title: $t('common.table.operation'),
       align: 'center',
       fixed: 'right',
-      width: 120,
+      width: 200,
       cellRender: {
         attrs: {
           nameField: 'name',
           onClick: onActionClick,
         },
         name: 'CellOperation',
-        options: ['edit', 'delete'],
+        options: [
+          {
+            code: 'sync',
+            text: '同步模型',
+            show: (row: LlmProviderResult) => !!row.api_base_url,
+          },
+          'edit',
+          'delete',
+        ],
       },
     },
   ];

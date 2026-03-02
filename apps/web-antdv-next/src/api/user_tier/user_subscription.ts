@@ -57,21 +57,21 @@ export interface UserSubscriptionListResult {
 
 // API functions
 export async function getUserSubscriptionListApi(params: UserSubscriptionParams): Promise<UserSubscriptionListResult> {
-  return requestClient.get<UserSubscriptionListResult>('/api/v1/user_tier/user/subscriptions', { params });
+  return requestClient.get<UserSubscriptionListResult>('/api/v1/user_tier/subscriptions', { params });
 }
 
 export async function getUserSubscriptionApi(id: number): Promise<UserSubscription> {
-  return requestClient.get<UserSubscription>(`/api/v1/user_tier/user/subscriptions/${id}`);
+  return requestClient.get<UserSubscription>(`/api/v1/user_tier/subscriptions/${id}`);
 }
 
 export async function createUserSubscriptionApi(data: UserSubscriptionCreateParams): Promise<UserSubscription> {
-  return requestClient.post<UserSubscription>('/api/v1/user_tier/user/subscriptions', data);
+  return requestClient.post<UserSubscription>('/api/v1/user_tier/subscriptions', data);
 }
 
 export async function updateUserSubscriptionApi(id: number, data: Partial<UserSubscriptionCreateParams>): Promise<UserSubscription> {
-  return requestClient.put<UserSubscription>(`/api/v1/user_tier/user/subscriptions/${id}`, data);
+  return requestClient.put<UserSubscription>(`/api/v1/user_tier/subscriptions/${id}`, data);
 }
 
 export async function deleteUserSubscriptionApi(id: number): Promise<void> {
-  return requestClient.delete<void>(`/api/v1/user_tier/user/subscriptions/${id}`);
+  return requestClient.delete<void>(`/api/v1/user_tier/subscriptions/${id}`);
 }

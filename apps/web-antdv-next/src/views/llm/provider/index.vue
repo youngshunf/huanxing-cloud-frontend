@@ -16,6 +16,7 @@ import {
   createLlmProviderApi,
   updateLlmProviderApi,
   deleteLlmProviderApi,
+  syncLlmProviderModelsApi,
 } from '#/api';
 import { querySchema, useColumns, formSchema } from './data';
 
@@ -57,6 +58,7 @@ function onRefresh() {
 }
 
 const editId = ref<number>(0);
+const syncingId = ref<number>(0);
 
 function onActionClick({ code, row }: OnActionClickParams<LlmProviderResult>) {
   switch (code) {
@@ -70,6 +72,24 @@ function onActionClick({ code, row }: OnActionClickParams<LlmProviderResult>) {
     case 'edit': {
       editId.value = row.id;
       editModalApi.setData(row).open();
+      break;
+    }
+    case 'sync': {
+      syncingId.value = row.id;
+      syncLlmProviderModelsApi(row.id)
+        .then((res: any) => {
+          const data = res?.data || res;
+          message.success(
+            `同步完成：共 ${data.total} 个模型，新增 ${data.created} 个，跳过 ${data.skipped} 个${data.failed > 0 ? `，失败 ${data.failed} 个` : ''}`,
+          );
+          onRefresh();
+        })
+        .catch((err: any) => {
+          message.error(`同步失败：${err?.message || '未知错误'}`);
+        })
+        .finally(() => {
+          syncingId.value = 0;
+        });
       break;
     }
   }

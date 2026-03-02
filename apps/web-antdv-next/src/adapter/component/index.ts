@@ -35,7 +35,7 @@ import { isEmpty } from '@vben/utils';
 
 import { message, Modal, notification } from 'antdv-next';
 
-import { ModelSelect } from '#/components/business';
+import { ModelSelect, UserSelect } from '#/components/business';
 
 const AutoComplete = defineAsyncComponent(
   () => import('antdv-next/dist/auto-complete/index'),
@@ -510,6 +510,7 @@ export type ComponentType =
   | 'InputPassword'
   | 'Mentions'
   | 'ModelSelect'
+  | 'UserSelect'
   | 'PrimaryButton'
   | 'Radio'
   | 'RadioGroup'
@@ -571,6 +572,7 @@ async function initComponentAdapter() {
     InputPassword: withDefaultPlaceholder(InputPassword, 'input'),
     Mentions: withDefaultPlaceholder(Mentions, 'input'),
     ModelSelect,
+    UserSelect,
     // 自定义主要按钮
     PrimaryButton: (props, { attrs, slots }) => {
       return h(Button, { ...props, attrs, type: 'primary' }, slots);

@@ -20,12 +20,42 @@ export const API_KEY_STATUS = [
   { label: '已过期', value: 'expired', color: 'orange' },
 ];
 
+export const querySchema: VbenFormSchema[] = [
+  {
+    component: 'Input',
+    fieldName: 'user_keyword',
+    label: '用户搜索',
+    componentProps: { placeholder: '昵称/手机号' },
+  },
+  {
+    component: 'Input',
+    fieldName: 'name',
+    label: 'Key 名称',
+  },
+  {
+    component: 'Select',
+    fieldName: 'status',
+    label: '状态',
+    componentProps: {
+      allowClear: true,
+      options: [
+        { label: '活跃', value: 'ACTIVE' },
+        { label: '已禁用', value: 'DISABLED' },
+        { label: '已过期', value: 'EXPIRED' },
+        { label: '已吊销', value: 'REVOKED' },
+      ],
+    },
+  },
+];
+
 export function useColumns(
   onActionClick?: OnActionClickFn<LlmApiKeyResult>,
 ): VxeGridProps['columns'] {
   return [
     { field: 'seq', title: '#', type: 'seq', width: 50 },
     { field: 'name', title: '名称', width: 150 },
+    { field: 'user_nickname', title: '用户昵称', width: 120 },
+    { field: 'user_phone', title: '手机号', width: 130 },
     { field: 'key_prefix', title: 'Key 前缀', width: 120 },
     {
       field: 'status',
@@ -74,14 +104,18 @@ export function useColumns(
       title: $t('common.table.operation'),
       align: 'center',
       fixed: 'right',
-      width: 150,
+      width: 200,
       cellRender: {
         attrs: {
           nameField: 'name',
           onClick: onActionClick,
         },
         name: 'CellOperation',
-        options: ['edit', 'delete'],
+        options: [
+          { code: 'copy', text: '复制Key' },
+          'edit',
+          'delete',
+        ],
       },
     },
   ];

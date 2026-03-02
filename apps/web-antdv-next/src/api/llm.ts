@@ -166,6 +166,8 @@ export interface LlmRateLimitCreateParams {
 export interface LlmApiKeyResult {
   id: number;
   user_id: number;
+  user_nickname: string | null;
+  user_phone: string | null;
   name: string;
   key_prefix: string;
   status: string;
@@ -257,6 +259,20 @@ export async function updateLlmProviderApi(
 
 export async function deleteLlmProviderApi(pk: number) {
   return requestClient.delete(`/api/v1/llm/providers/${pk}`);
+}
+
+export interface SyncModelsResult {
+  total: number;
+  created: number;
+  skipped: number;
+  failed: number;
+  models: string[];
+}
+
+export async function syncLlmProviderModelsApi(pk: number) {
+  return requestClient.post<SyncModelsResult>(
+    `/api/v1/llm/providers/${pk}/sync-models`,
+  );
 }
 
 // ==================== 模型配置 API ====================
@@ -374,6 +390,10 @@ export async function updateLlmApiKeyApi(
 
 export async function deleteLlmApiKeyApi(pk: number) {
   return requestClient.delete(`/api/v1/llm/api-keys/${pk}`);
+}
+
+export async function getFullApiKeyApi(pk: number) {
+  return requestClient.get<{ api_key: string }>(`/api/v1/llm/api-keys/admin/${pk}/full-key`);
 }
 
 // ==================== 用量统计 API ====================

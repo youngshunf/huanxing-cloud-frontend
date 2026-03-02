@@ -47,21 +47,21 @@ export interface CreditTransactionListResult {
 
 // API functions
 export async function getCreditTransactionListApi(params: CreditTransactionParams): Promise<CreditTransactionListResult> {
-  return requestClient.get<CreditTransactionListResult>('/api/v1/user_tier/credit/transactions', { params });
+  return requestClient.get<CreditTransactionListResult>('/api/v1/user_tier/transactions', { params });
 }
 
 export async function getCreditTransactionApi(id: number): Promise<CreditTransaction> {
-  return requestClient.get<CreditTransaction>(`/api/v1/user_tier/credit/transactions/${id}`);
+  return requestClient.get<CreditTransaction>(`/api/v1/user_tier/transactions/${id}`);
 }
 
 export async function createCreditTransactionApi(data: CreditTransactionCreateParams): Promise<CreditTransaction> {
-  return requestClient.post<CreditTransaction>('/api/v1/user_tier/credit/transactions', data);
+  return requestClient.post<CreditTransaction>('/api/v1/user_tier/transactions', data);
 }
 
 export async function updateCreditTransactionApi(id: number, data: Partial<CreditTransactionCreateParams>): Promise<CreditTransaction> {
-  return requestClient.put<CreditTransaction>(`/api/v1/user_tier/credit/transactions/${id}`, data);
+  return requestClient.put<CreditTransaction>(`/api/v1/user_tier/transactions/${id}`, data);
 }
 
 export async function deleteCreditTransactionApi(id: number): Promise<void> {
-  return requestClient.delete<void>(`/api/v1/user_tier/credit/transactions/${id}`);
+  return requestClient.delete<void>(`/api/v1/user_tier/transactions/${id}`);
 }

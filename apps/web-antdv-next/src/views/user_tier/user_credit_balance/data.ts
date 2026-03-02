@@ -5,6 +5,7 @@ import type {
 } from '#/adapter/vxe-table';
 import type { UserCreditBalance } from '#/api/user_tier/user_credit_balance';
 
+
 import { $t } from '@vben/locales';
 
 import { getDictOptions } from '#/utils/dict';
@@ -26,7 +27,7 @@ export const querySchema: VbenFormSchema[] = [
     component: 'Input',
     fieldName: 'user_keyword',
     label: '用户搜索',
-    componentProps: {"placeholder": "昵称/手机号"},
+    componentProps: { placeholder: '昵称/手机号' },
   },
   {
     component: 'Select',
@@ -41,13 +42,13 @@ export const querySchema: VbenFormSchema[] = [
     component: 'RangePicker',
     fieldName: 'expires_at',
     label: '过期时间',
-    componentProps: {"format": "YYYY-MM-DD"},
+    componentProps: { format: 'YYYY-MM-DD' },
   },
   {
     component: 'RangePicker',
     fieldName: 'granted_at',
     label: '发放时间',
-    componentProps: {"format": "YYYY-MM-DD"},
+    componentProps: { format: 'YYYY-MM-DD' },
   },
   {
     component: 'Select',
@@ -57,12 +58,6 @@ export const querySchema: VbenFormSchema[] = [
       allowClear: true,
       options: getDictOptions('user_tier_source_type'),
     },
-  },
-  {
-    component: 'Input',
-    fieldName: 'source_reference_id',
-    label: '关联订单号',
-    componentProps: {"placeholder": "Search by \u5173\u8054\u8ba2\u5355\u53f7"},
   },
 ];
 
@@ -110,7 +105,7 @@ export function useColumns(
     },
     {
       field: 'original_amount',
-      title: '原始积分数量',
+      title: '原始积分',
       width: 120,
     },
     {
@@ -143,35 +138,80 @@ export function useColumns(
       },
     },
     {
-      field: 'source_reference_id',
-      title: '关联订单号',
-      width: 150,
-    },
-    {
       field: 'description',
       title: '描述',
       width: 150,
+      showOverflow: true,
     },
     {
       field: 'operation',
       title: $t('common.table.operation'),
       align: 'center',
       fixed: 'right',
-      width: 150,
+      width: 120,
       cellRender: {
         attrs: {
           nameField: 'id',
           onClick: onActionClick,
         },
         name: 'CellOperation',
-        options: ['edit', 'delete'],
+        options: ['delete'],
       },
     },
   ];
 }
 
 /**
- * Form schema for add/edit
+ * 赠送积分表单 schema
+ */
+export const grantFormSchema: VbenFormSchema[] = [
+  {
+    component: 'UserSelect',
+    fieldName: 'user_ids',
+    label: '选择用户',
+    rules: 'required',
+    componentProps: {
+      mode: 'multiple',
+      placeholder: '搜索并选择用户（支持多选）',
+    },
+  },
+  {
+    component: 'InputNumber',
+    fieldName: 'amount',
+    label: '赠送积分',
+    rules: 'required',
+    componentProps: {
+      min: 1,
+      precision: 0,
+      style: 'width: 100%',
+      placeholder: '请输入赠送积分数量',
+    },
+  },
+  {
+    component: 'DatePicker',
+    fieldName: 'expires_at',
+    label: '过期时间',
+    componentProps: {
+      format: 'YYYY-MM-DD HH:mm:ss',
+      showTime: true,
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      placeholder: '不填则永不过期',
+      style: 'width: 100%',
+    },
+  },
+  {
+    component: 'Textarea',
+    fieldName: 'description',
+    label: '赠送说明',
+    componentProps: {
+      rows: 3,
+      placeholder: '可选，如：新用户福利、活动奖励等',
+    },
+  },
+];
+
+/**
+ * 编辑表单 schema (保留原有编辑功能)
  */
 export const formSchema: VbenFormSchema[] = [
   {
@@ -189,7 +229,7 @@ export const formSchema: VbenFormSchema[] = [
     fieldName: 'user_id',
     label: '用户 ID',
     rules: 'required',
-    componentProps: {"style": "width: 100%"},
+    componentProps: { style: 'width: 100%' },
   },
   {
     component: 'Select',
@@ -205,33 +245,30 @@ export const formSchema: VbenFormSchema[] = [
     fieldName: 'original_amount',
     label: '原始积分数量',
     rules: 'required',
-    componentProps: {"style": "width: 100%"},
+    componentProps: { style: 'width: 100%' },
   },
   {
     component: 'InputNumber',
     fieldName: 'used_amount',
     label: '已使用积分',
-    componentProps: {"style": "width: 100%", "disabled": true},
+    componentProps: { style: 'width: 100%', disabled: true },
   },
   {
     component: 'InputNumber',
     fieldName: 'remaining_amount',
     label: '剩余积分数量',
     rules: 'required',
-    componentProps: {"style": "width: 100%"},
+    componentProps: { style: 'width: 100%' },
   },
   {
     component: 'DatePicker',
     fieldName: 'expires_at',
     label: '过期时间',
-    componentProps: {"format": "YYYY-MM-DD HH:mm:ss", "showTime": true, "valueFormat": "YYYY-MM-DD HH:mm:ss"},
-  },
-  {
-    component: 'DatePicker',
-    fieldName: 'granted_at',
-    label: '发放时间',
-    rules: 'required',
-    componentProps: {"format": "YYYY-MM-DD HH:mm:ss", "showTime": true, "valueFormat": "YYYY-MM-DD HH:mm:ss"},
+    componentProps: {
+      format: 'YYYY-MM-DD HH:mm:ss',
+      showTime: true,
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+    },
   },
   {
     component: 'Select',
@@ -251,6 +288,6 @@ export const formSchema: VbenFormSchema[] = [
     component: 'Textarea',
     fieldName: 'description',
     label: '描述',
-    componentProps: {"rows": 4},
+    componentProps: { rows: 3 },
   },
 ];

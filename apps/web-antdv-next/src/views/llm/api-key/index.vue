@@ -3,6 +3,7 @@
   @author Ysf
 -->
 <script setup lang="ts">
+import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeTableGridOptions, OnActionClickParams } from '#/adapter/vxe-table';
 import type {
   LlmApiKeyResult,
@@ -24,10 +25,11 @@ import {
   createLlmApiKeyApi,
   updateLlmApiKeyApi,
   deleteLlmApiKeyApi,
+  getFullApiKeyApi,
   getLlmRateLimitListApi,
   getAvailableModelsApi,
 } from '#/api';
-import { useColumns, useFormSchema, useEditFormSchema } from './data';
+import { querySchema, useColumns, useFormSchema, useEditFormSchema } from './data';
 
 const rateLimitOptions = ref<LlmRateLimitResult[]>([]);
 const modelOptions = ref<LlmModelConfigResult[]>([]);
@@ -45,6 +47,13 @@ const fetchOptions = async () => {
   }
 };
 
+const formOptions: VbenFormProps = {
+  collapsed: true,
+  showCollapseButton: true,
+  submitButtonOptions: { content: '查询' },
+  schema: querySchema,
+};
+
 const gridOptions: VxeTableGridOptions<LlmApiKeyResult> = {
   rowConfig: { keyField: 'id' },
   height: 'auto',
@@ -58,14 +67,18 @@ const gridOptions: VxeTableGridOptions<LlmApiKeyResult> = {
   columns: useColumns(onActionClick),
   proxyConfig: {
     ajax: {
-      query: async () => {
-        return await getLlmApiKeyListApi();
+      query: async ({ page }, formValues) => {
+        return await getLlmApiKeyListApi({
+          page: page.currentPage,
+          size: page.pageSize,
+          ...formValues,
+        });
       },
     },
   },
 };
 
-const [Grid, gridApi] = useVbenVxeGrid({ gridOptions });
+const [Grid, gridApi] = useVbenVxeGrid({ formOptions, gridOptions });
 
 function onRefresh() {
   gridApi.query();
@@ -85,6 +98,24 @@ function onActionClick({ code, row }: OnActionClickParams<LlmApiKeyResult>) {
     case 'edit': {
       editId.value = row.id;
       editModalApi.setData(row).open();
+      break;
+    }
+    case 'copy': {
+      getFullApiKeyApi(row.id).then((res: any) => {
+        const key = res?.data?.api_key || res?.api_key;
+        if (key) {
+          navigator.clipboard.writeText(key).then(() => {
+            message.success('API Key 已复制到剪贴板');
+          }).catch(() => {
+            // fallback
+            Modal.info({ title: 'API Key', content: key, width: 500 });
+          });
+        } else {
+          message.error('获取 API Key 失败');
+        }
+      }).catch((err: any) => {
+        message.error(`获取失败：${err?.message || '未知错误'}`);
+      });
       break;
     }
   }

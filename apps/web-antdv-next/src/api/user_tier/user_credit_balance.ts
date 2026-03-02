@@ -50,21 +50,41 @@ export interface UserCreditBalanceListResult {
 
 // API functions
 export async function getUserCreditBalanceListApi(params: UserCreditBalanceParams): Promise<UserCreditBalanceListResult> {
-  return requestClient.get<UserCreditBalanceListResult>('/api/v1/user_tier/user/credit/balances', { params });
+  return requestClient.get<UserCreditBalanceListResult>('/api/v1/user_tier/balances', { params });
 }
 
 export async function getUserCreditBalanceApi(id: number): Promise<UserCreditBalance> {
-  return requestClient.get<UserCreditBalance>(`/api/v1/user_tier/user/credit/balances/${id}`);
+  return requestClient.get<UserCreditBalance>(`/api/v1/user_tier/balances/${id}`);
 }
 
 export async function createUserCreditBalanceApi(data: UserCreditBalanceCreateParams): Promise<UserCreditBalance> {
-  return requestClient.post<UserCreditBalance>('/api/v1/user_tier/user/credit/balances', data);
+  return requestClient.post<UserCreditBalance>('/api/v1/user_tier/balances', data);
 }
 
 export async function updateUserCreditBalanceApi(id: number, data: Partial<UserCreditBalanceCreateParams>): Promise<UserCreditBalance> {
-  return requestClient.put<UserCreditBalance>(`/api/v1/user_tier/user/credit/balances/${id}`, data);
+  return requestClient.put<UserCreditBalance>(`/api/v1/user_tier/balances/${id}`, data);
 }
 
 export async function deleteUserCreditBalanceApi(id: number): Promise<void> {
-  return requestClient.delete<void>(`/api/v1/user_tier/user/credit/balances/${id}`);
+  return requestClient.delete<void>(`/api/v1/user_tier/balances/${id}`);
+}
+
+
+// 赠送积分
+export interface GrantCreditsParams {
+  user_ids: number[];
+  amount: number;
+  expires_at?: string;
+  description?: string;
+}
+
+export interface GrantCreditsResult {
+  success_count: number;
+  failed_count: number;
+  total_credits: number;
+  details: Array<{ user_id: number; status: string; credits?: number; error?: string }>;
+}
+
+export async function grantCreditsApi(data: GrantCreditsParams) {
+  return requestClient.post<GrantCreditsResult>('/api/v1/user_tier/balances/grant', data);
 }

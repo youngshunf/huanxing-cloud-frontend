@@ -38,21 +38,21 @@ export interface CreditPackageListResult {
 
 // API functions
 export async function getCreditPackageListApi(params: CreditPackageParams): Promise<CreditPackageListResult> {
-  return requestClient.get<CreditPackageListResult>('/api/v1/user_tier/credit/packages', { params });
+  return requestClient.get<CreditPackageListResult>('/api/v1/user_tier/packages', { params });
 }
 
 export async function getCreditPackageApi(id: number): Promise<CreditPackage> {
-  return requestClient.get<CreditPackage>(`/api/v1/user_tier/credit/packages/${id}`);
+  return requestClient.get<CreditPackage>(`/api/v1/user_tier/packages/${id}`);
 }
 
 export async function createCreditPackageApi(data: CreditPackageCreateParams): Promise<CreditPackage> {
-  return requestClient.post<CreditPackage>('/api/v1/user_tier/credit/packages', data);
+  return requestClient.post<CreditPackage>('/api/v1/user_tier/packages', data);
 }
 
 export async function updateCreditPackageApi(id: number, data: Partial<CreditPackageCreateParams>): Promise<CreditPackage> {
-  return requestClient.put<CreditPackage>(`/api/v1/user_tier/credit/packages/${id}`, data);
+  return requestClient.put<CreditPackage>(`/api/v1/user_tier/packages/${id}`, data);
 }
 
 export async function deleteCreditPackageApi(id: number): Promise<void> {
-  return requestClient.delete<void>(`/api/v1/user_tier/credit/packages/${id}`);
+  return requestClient.delete<void>(`/api/v1/user_tier/packages/${id}`);
 }
