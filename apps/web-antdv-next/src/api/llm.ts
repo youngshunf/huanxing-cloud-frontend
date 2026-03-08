@@ -182,6 +182,7 @@ export interface LlmApiKeyResult {
 }
 
 export interface LlmApiKeyCreateParams {
+  user_id?: number;
   name: string;
   expires_at?: string;
   rate_limit_config_id?: number;
@@ -375,6 +376,13 @@ export async function getLlmApiKeyApi(pk: number) {
 }
 
 export async function createLlmApiKeyApi(data: LlmApiKeyCreateParams) {
+  // 如果指定了 user_id，走管理员接口
+  if (data.user_id) {
+    return requestClient.post<LlmApiKeyCreateResponse>(
+      '/api/v1/llm/api-keys/admin',
+      data,
+    );
+  }
   return requestClient.post<LlmApiKeyCreateResponse>(
     '/api/v1/llm/api-keys',
     data,

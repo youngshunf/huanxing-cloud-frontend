@@ -127,6 +127,15 @@ export function useFormSchema(
 ): VbenFormSchema[] {
   return [
     {
+      component: 'UserSelect',
+      fieldName: 'user_id',
+      label: '用户',
+      rules: 'required',
+      componentProps: {
+        placeholder: '搜索用户（昵称/手机号）',
+      },
+    },
+    {
       component: 'Input',
       fieldName: 'name',
       label: '名称',

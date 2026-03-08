@@ -57,15 +57,7 @@ function onActionClick({ code, row }: OnActionClickParams<PayMerchant>) {
   }
   if (code === 'edit') {
     editId.value = row.id;
-    // 展开 config 为 config.xxx
-    const formData: Record<string, any> = { ...row };
-    if (row.config && typeof row.config === 'object') {
-      for (const [k, v] of Object.entries(row.config)) {
-        formData[`config.${k}`] = v;
-      }
-    }
-    delete formData.config;
-    editModalApi.setData(formData).open();
+    editModalApi.setData({ ...row }).open();
   }
 }
 
@@ -86,8 +78,14 @@ const [editModal, editModalApi] = useVbenModal({
     const config: Record<string, any> = {};
     for (const [k, v] of Object.entries(values)) {
       if (k.startsWith('config.')) {
+        // 扁平 key：config.appId → config['appId']
         const ck = k.slice(7);
         if (v !== undefined && v !== null && v !== '') config[ck] = v;
+      } else if (k === 'config' && typeof v === 'object' && v !== null) {
+        // Vben 自动嵌套：getValues() 返回 { config: { appId: ... } }
+        for (const [ck, cv] of Object.entries(v as Record<string, any>)) {
+          if (cv !== undefined && cv !== null && cv !== '') config[ck] = cv;
+        }
       } else if (!k.startsWith('_')) {
         data[k] = v;
       }
@@ -109,13 +107,18 @@ const [editModal, editModalApi] = useVbenModal({
       editFormApi.resetForm();
       const data = editModalApi.getData<any>();
       if (data) {
-        // 先设 type 和基础字段，让依赖条件生效
-        const { type, status, name, remark, ...rest } = data;
-        editFormApi.setValues({ type, status, name, remark });
-        // 等 DOM 更新后再设 config.xxx 字段（依赖 type 显隐）
+        const { config, ...baseFields } = data;
+        // 1. 先设 type 等基础字段，让依赖条件（微信/支付宝显隐）生效
+        editFormApi.setValues({ type: baseFields.type, status: baseFields.status, name: baseFields.name, remark: baseFields.remark });
+        // 2. 等依赖条件渲染完毕，再用 setFieldValue 逐个设 config.xxx
+        //    setFieldValue 直接走 vee-validate，正确支持点号嵌套路径
         setTimeout(() => {
-          editFormApi.setValues(rest);
-        }, 100);
+          if (config && typeof config === 'object') {
+            for (const [k, v] of Object.entries(config)) {
+              editFormApi.setFieldValue(`config.${k}`, v);
+            }
+          }
+        }, 150);
       }
     }
   },
